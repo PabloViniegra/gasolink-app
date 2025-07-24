@@ -156,3 +156,9 @@ export interface Historic {
   cantidadResultados: number;
   data: HistoricItem[];
 }
+
+export interface Favorite {
+  id: string;
+  name: string;
+  [key: string]: any;
+}

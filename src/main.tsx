@@ -13,6 +13,7 @@ import '@fontsource-variable/sora';
 import '@fontsource-variable/chivo';
 import '@fontsource-variable/lexend';
 import '@fontsource/space-mono';
+import FavoritePage from "./pages/favoritePage";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,10 @@ const router = createBrowserRouter([
   {
     path: "/station/:id",
     element: <StationDetailPage />,
+  },
+  {
+    path: "/favorites",
+    element: <FavoritePage />,
   }
 ]);
 

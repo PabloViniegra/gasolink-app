@@ -1,9 +1,10 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router";
-import { ArrowLeft, MapPin, Clock, Info, Navigation } from "lucide-react";
+import { ArrowLeft, MapPin, Clock, Info, Navigation, Heart } from "lucide-react";
 import MainLayout from "../layouts/MainLayout";
 import useStation from "../hooks/useStation";
 import useGeolocation from "../hooks/useGeolocation";
+import { useFavorites } from "../hooks/useFavorites";
 import { Button, Skeleton, Tooltip } from "@heroui/react";
 import "../styles/globals.css";
 import HistoricStation from "../components/stations/HistoricStation";
@@ -15,6 +16,7 @@ const StationDetailPage: React.FC = () => {
   const { selectedStation, selectedStationHistoric, isLoading } = useStation(
     Number(id)
   );
+  const { addFavorite, removeFavourite, isFavorite } = useFavorites();
 
   if (isLoading) {
     return (
@@ -138,7 +140,50 @@ const StationDetailPage: React.FC = () => {
           </Button>
         </div>
         <div className="bg-card/50 border border-border rounded-xl p-6 mb-8 backdrop-blur-sm relative">
-          <div className="absolute top-6 right-6">
+          <div className="absolute top-6 right-6 flex gap-2">
+            <Tooltip content={isFavorite(selectedStation?.idEstacion.toString()) ? "Quitar de favoritos" : "Añadir a favoritos"}>
+              <Button
+                isIconOnly
+                variant="flat"
+                size="sm"
+                className={`${
+                  isFavorite(selectedStation?.idEstacion.toString())
+                    ? 'text-danger hover:bg-danger/10'
+                    : 'text-foreground/60 hover:bg-accent/20 hover:text-foreground/80'
+                } transition-colors`}
+                onPress={() => {
+                  if (!selectedStation) return;
+                  
+                  const stationId = selectedStation.idEstacion.toString();
+                  if (isFavorite(stationId)) {
+                    removeFavourite(stationId);
+                  } else {
+                    addFavorite({
+                      id: stationId,
+                      name: selectedStation.nombreEstacion,
+                      // Additional properties for display in favorites list
+                      nombreEstacion: selectedStation.nombreEstacion,
+                      direccion: selectedStation.direccion,
+                      localidad: selectedStation.localidad,
+                      horario: selectedStation.horario,
+                      latitud: selectedStation.latitud,
+                      longitud: selectedStation.longitud
+                    });
+                  }
+                }}
+                isDisabled={!selectedStation}
+              >
+                <Heart 
+                  size={18} 
+                  fill={
+                    isFavorite(selectedStation?.idEstacion.toString()) 
+                      ? 'currentColor' 
+                      : 'none'
+                  } 
+                />
+              </Button>
+            </Tooltip>
+            
             <Tooltip content="Abrir en Google Maps">
               <Button
                 isIconOnly
