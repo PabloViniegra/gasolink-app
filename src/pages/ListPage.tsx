@@ -85,13 +85,14 @@ export default function ListPage() {
     });
   }, [closeStations, selectedSort]);
 
-
   if (queryNearestStations.isLoading || !latitude || !longitude) {
     return (
       <MainLayout>
         <div className="flex items-center justify-center h-screen w-full">
           <Spinner size="lg" color="primary" />
-          <p className="ml-2 font-sans">Buscando estaciones cercanas...</p>
+          <p className="ml-2 font-sans text-foreground">
+            Buscando estaciones cercanas...
+          </p>
         </div>
       </MainLayout>
     );
