@@ -51,7 +51,6 @@ export function useStations(localityId: number) {
     recentlyUpdated: false,
   });
 
-  // Fetch stations data
   const stationsQuery = useQuery({
     queryKey: ["stations", localityId],
     queryFn: () => {
@@ -61,10 +60,9 @@ export function useStations(localityId: number) {
     enabled: !!localityId,
   });
 
-  // Calculate min and max prices from the data
   const priceRange = useMemo(() => {
     if (!stationsQuery.data || stationsQuery.data.length === 0) {
-      return { min: 1, max: 3 }; // Default range if no data
+      return { min: 1, max: 3 };
     }
 
     let min = Infinity;
@@ -170,7 +168,6 @@ export function useStations(localityId: number) {
 
     return [...stationsQuery.data]
       .filter((station) => {
-        // Apply fuel type filter
         if (filters.fuelTypes.length > 0) {
           const hasSelectedFuel = filters.fuelTypes.some((fuelKey) => {
             const fuelType = FUEL_TYPES.find((f) => f.key === fuelKey);
@@ -178,7 +175,6 @@ export function useStations(localityId: number) {
             const priceStr = station[fuelKey as keyof Station];
             if (!priceStr || priceStr === "null") return false;
 
-            // Apply price range filter for each selected fuel type
             const price = parseFloat(String(priceStr));
             if (isNaN(price)) return false;
 
@@ -201,7 +197,6 @@ export function useStations(localityId: number) {
           if (!hasSelectedFuel) return false;
         }
 
-        // If no fuel types selected, apply price range to all fuel types
         if (
           filters.fuelTypes.length === 0 &&
           (filters.priceRange.min !== null || filters.priceRange.max !== null)
@@ -309,7 +304,7 @@ export function useStations(localityId: number) {
     sortOption,
     setSortOption,
     filters,
-    priceRange, // Export the calculated price range
+    priceRange,
     updateFilters,
     handleFuelFilterChange,
     handlePriceRangeChange,
