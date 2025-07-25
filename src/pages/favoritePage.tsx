@@ -89,7 +89,7 @@ const FavoritePage: React.FC = () => {
                     variant="flat"
                     color="danger"
                     size="sm"
-                    onPress={(e) => {
+                    onPress={() => {
                       removeFavourite(station.id);
                     }}
                     className="text-danger hover:bg-danger/10"

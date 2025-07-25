@@ -16,7 +16,6 @@ interface PanelFilterProps {
 }
 
 export default function PanelFilter({
-  fuelTypes,
   selectedFuels,
   onFuelFilterChange,
   onPriceRangeChange,

@@ -1,10 +1,10 @@
 import { create } from "zustand";
 import {
   readTextFile,
-  writeTextFile,
   BaseDirectory,
   exists,
-  create as createDir,
+  mkdir,
+  writeTextFile,
 } from "@tauri-apps/plugin-fs";
 import { Favorite } from "../types";
 
@@ -42,13 +42,16 @@ export const favoritesFs = {
     }
   },
   async save(favs: Favorite[]) {
-    if (!(await exists(FAVORITES_DIR, { baseDir: BaseDirectory.AppData }))) {
-      await createDir(FAVORITES_DIR, {
-        baseDir: BaseDirectory.AppData
+    const folderExists = await exists(FAVORITES_DIR, {
+      baseDir: BaseDirectory.AppData,
+    });
+    if (!folderExists) {
+      await mkdir(FAVORITES_DIR, {
+        baseDir: BaseDirectory.AppData,
+        recursive: true,
       });
     }
-    const contents = JSON.stringify(favs, null, 2);
-    await writeTextFile(FAVORITES_PATH, contents, {
+    await writeTextFile(FAVORITES_PATH, JSON.stringify(favs, null, 2), {
       baseDir: BaseDirectory.AppData,
     });
   },

@@ -161,7 +161,6 @@ const StationDetailPage: React.FC = () => {
                     addFavorite({
                       id: stationId,
                       name: selectedStation.nombreEstacion,
-                      // Additional properties for display in favorites list
                       nombreEstacion: selectedStation.nombreEstacion,
                       direccion: selectedStation.direccion,
                       localidad: selectedStation.localidad,

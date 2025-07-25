@@ -1,7 +1,6 @@
 import { Popover, PopoverTrigger, PopoverContent, Button } from "@heroui/react";
 import { SortOption } from "../../hooks/useStations";
 import { ArrowDownNarrowWide, ChevronDown, Check } from 'lucide-react';
-import React from "react";
 
 interface PanelOrderProps {
   sortOption: SortOption;
