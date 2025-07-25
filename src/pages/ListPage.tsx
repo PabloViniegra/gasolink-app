@@ -67,12 +67,21 @@ export default function ListPage() {
             ? (a.distancia || 0) - (b.distancia || 0)
             : (b.distancia || 0) - (a.distancia || 0);
         case "price": {
-          const priceA = parseFloat(
-            String(a.Gasolina95) || String(a.Diesel) || "0"
-          );
-          const priceB = parseFloat(
-            String(b.Gasolina95) || String(b.Diesel) || "0"
-          );
+          const getMinPrice = (station: any) => {
+            const prices = [
+              station.Gasolina95 !== null
+                ? parseFloat(String(station.Gasolina95))
+                : null,
+              station.Diesel !== null
+                ? parseFloat(String(station.Diesel))
+                : null,
+            ].filter((price): price is number => price !== null);
+            return prices.length > 0 ? Math.min(...prices) : Infinity;
+          };
+
+          const priceA = getMinPrice(a);
+          const priceB = getMinPrice(b);
+
           return order === "asc" ? priceA - priceB : priceB - priceA;
         }
         case "name":

@@ -46,16 +46,19 @@ const DetailStationHeader: React.FC<DetailStationHeaderProps> = ({
               if (isFavorite(stationId)) {
                 removeFavourite(stationId);
               } else {
-                addFavorite({
+                const favorite: Favorite = {
                   id: stationId,
                   name: station.nombreEstacion,
                   nombreEstacion: station.nombreEstacion,
-                  direccion: station.direccion,
-                  localidad: station.localidad,
-                  horario: station.horario,
+                  direccion: station.direccion || '',
+                  localidad: station.localidad || '',
+                  horario: station.horario || 'No especificado',
                   latitud: station.latitud,
                   longitud: station.longitud,
-                });
+                  marca: station.marca || '',
+                  provincia: station.provincia || ''
+                };
+                addFavorite(favorite);
               }
             }}
             isDisabled={!station}

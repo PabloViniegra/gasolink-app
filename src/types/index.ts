@@ -160,6 +160,14 @@ export interface Historic {
 export interface Favorite {
   id: string;
   name: string;
+  nombreEstacion: string;
+  direccion: string;
+  localidad: string;
+  horario: string;
+  latitud: number | string;
+  longitud: number | string;
+  marca?: string;
+  provincia?: string;
   [key: string]: any;
 }
 
