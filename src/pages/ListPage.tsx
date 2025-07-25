@@ -1,33 +1,12 @@
 import { useState, useMemo, useEffect } from "react";
-import { useNavigate } from "react-router";
-import {
-  Button,
-  Select,
-  SelectItem,
-  Spinner,
-  Card,
-  CardBody,
-  CardFooter,
-  Chip,
-} from "@heroui/react";
-import {
-  ArrowRight,
-  MapPin,
-  ChevronDown,
-  ArrowUpDown,
-  Bookmark,
-} from "lucide-react";
+import { Spinner, Button } from "@heroui/react";
 import MainLayout from "../layouts/MainLayout";
 import useNearestStations from "../hooks/useNearestStations";
 import useGeolocation from "../hooks/useGeolocation";
 import Header from "../components/shared/Header";
-
-const SORT_OPTIONS = [
-  { key: "distance-asc", label: "Más cercanas" },
-  { key: "price-asc", label: "Precio más bajo" },
-  { key: "price-desc", label: "Precio más alto" },
-  { key: "name-asc", label: "Nombre (A-Z)" },
-];
+import ListHeader from "../components/stations/ListHeader";
+import StationGridCards from "../components/stations/StationGridCards";
+import { useNavigate } from "react-router";
 
 export default function ListPage() {
   const navigate = useNavigate();
@@ -39,9 +18,20 @@ export default function ListPage() {
     setLatitud,
     setLongitud,
   } = useNearestStations();
+
+  const handleStationClick = (stationId: number) => {
+    navigate(`/station/${stationId}`);
+  };
   const [selectedSort, setSelectedSort] = useState<Set<string>>(
     new Set(["distance-asc"])
   );
+
+  const SORT_OPTIONS = [
+    { key: "distance-asc", label: "Más cercanas" },
+    { key: "price-asc", label: "Precio más bajo" },
+    { key: "price-desc", label: "Precio más alto" },
+    { key: "name-asc", label: "Nombre (A-Z)" },
+  ];
 
   useEffect(() => {
     if (latitude && longitude) {
@@ -95,32 +85,6 @@ export default function ListPage() {
     });
   }, [closeStations, selectedSort]);
 
-  const formatDistance = (distance: number) => {
-    return distance < 1
-      ? `${Math.round(distance * 1000)} m`
-      : `${distance.toFixed(1)} km`;
-  };
-
-  const getLowestPrice = (station: any) => {
-    const prices = [
-      parseFloat(station.Gasolina95 || "0") || Infinity,
-      parseFloat(station.Diesel || "0") || Infinity,
-      parseFloat(station.Gasolina98 || "0") || Infinity,
-      parseFloat(station.DieselPremium || "0") || Infinity,
-    ];
-    const minPrice = Math.min(...prices);
-    return isFinite(minPrice) ? minPrice.toFixed(3) : "N/A";
-  };
-
-  // Debug logs
-  console.log("Geolocation:", { latitude, longitude });
-  console.log("Query state:", {
-    isLoading: queryNearestStations.isLoading,
-    isError: queryNearestStations.isError,
-    error: queryNearestStations.error,
-    data: queryNearestStations.data,
-  });
-  console.log("Close stations:", closeStations);
 
   if (queryNearestStations.isLoading || !latitude || !longitude) {
     return (
@@ -156,113 +120,17 @@ export default function ListPage() {
     <MainLayout>
       <Header />
       <div className="w-full max-w-6xl mx-auto px-4 py-6 mt-28">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-extrabold font-display text-foreground">
-              Estaciones cercanas
-            </h1>
-            <p className="text-muted-foreground mt-1 font-lexend">
-              {closeStations?.length || 0} estaciones encontradas
-            </p>
-          </div>
+        <ListHeader
+          SORT_OPTIONS={SORT_OPTIONS}
+          stationCount={closeStations?.length || 0}
+          selectedSort={selectedSort}
+          onSortChange={setSelectedSort}
+        />
 
-          <div className="flex items-center gap-2">
-            <span className="font-sans text-sm text-muted-foreground whitespace-nowrap">
-              Ordenar por:
-            </span>
-            <Select
-              selectedKeys={selectedSort}
-              onSelectionChange={(keys) =>
-                setSelectedSort(new Set(Array.from(keys as Set<string>)))
-              }
-              defaultSelectedKeys={new Set(["distance-asc"])}
-              size="sm"
-              variant="faded"
-              className="min-w-[180px] text-muted"
-              startContent={<ArrowUpDown size={16} className="text-muted" />}
-              selectorIcon={<ChevronDown size={16} />}
-            >
-              {SORT_OPTIONS.map((option) => (
-                <SelectItem key={option.key}>{option.label}</SelectItem>
-              ))}
-            </Select>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
-          {sortedStations.map((station) => (
-            <Card
-              key={station.idEstacion}
-              className="w-full max-w-full bg-card/50 hover:bg-card/70 transition-all duration-200 border border-border/30 hover:border-primary/30 shadow-sm hover:shadow-lg overflow-hidden flex flex-col break-words"
-            >
-              <CardBody className="pb-2 flex-1 flex flex-col">
-                <div className="flex justify-between items-start w-full gap-2">
-                  <div>
-                    <h3 className="font-semibold text-lg font-lexend text-foreground hover:text-primary transition-colors break-words overflow-hidden text-ellipsis">
-                      {station.nombreEstacion}
-                    </h3>
-                    <div className="flex items-center text-sm text-muted-foreground/80 mt-1 w-full">
-                      <MapPin size={14} className="mr-1 flex-shrink-0" />
-                      <span className="truncate max-w-[180px] md:max-w-[200px] lg:max-w-[220px]">{station.direccion}</span>
-                    </div>
-                    <div className="mt-3 flex items-center">
-                      <Chip variant="shadow" color="default">
-                        <span className="flex items-center font-medium text-sm">
-                          <Bookmark size={14} className="mr-1 flex-shrink-0" />
-                          {formatDistance(station.distancia || 0)}
-                        </span>
-                      </Chip>
-                    </div>
-                  </div>
-                  <div className="bg-primary/10 hover:bg-primary/20 text-primary text-sm font-medium px-3 py-1 rounded-full whitespace-nowrap transition-colors shrink-0">
-                    {getLowestPrice(station)} €/L
-                  </div>
-                </div>
-
-                <div className="mt-4 pt-3 border-t border-border/30">
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div className="text-muted-foreground/80">Gasolina 95:</div>
-                    <div className="font-medium text-right text-foreground/90">
-                      {station.Gasolina95
-                        ? `${parseFloat(String(station.Gasolina95)).toFixed(
-                            3
-                          )} €`
-                        : "N/A"}
-                    </div>
-                    <div className="text-muted-foreground/80">Diésel:</div>
-                    <div className="font-medium text-right text-foreground/90">
-                      {station.Diesel
-                        ? `${parseFloat(String(station.Diesel)).toFixed(3)} €`
-                        : "N/A"}
-                    </div>
-                    {station.Gasolina95 && (
-                      <>
-                        <div className="text-muted-foreground/80">
-                          Gasolina 95:
-                        </div>
-                        <div className="font-medium text-right text-foreground/90">
-                          {parseFloat(String(station.Gasolina95)).toFixed(3)} €
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </CardBody>
-              <CardFooter className="pt-0">
-                <Button
-                  fullWidth
-                  variant="light"
-                  color="primary"
-                  size="sm"
-                  onPress={() => navigate(`/station/${station.idEstacion}`)}
-                  endContent={<ArrowRight size={16} />}
-                >
-                  Ver detalles
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+        <StationGridCards
+          stations={sortedStations}
+          onStationClick={handleStationClick}
+        />
       </div>
     </MainLayout>
   );
