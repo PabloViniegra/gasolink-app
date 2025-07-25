@@ -83,42 +83,16 @@ export function useStations(localityId: number) {
     fuelType: string;
   };
 
-  const getLowestPrice = (station: Station): FuelPrice => {
-    const fuelTypes = [
-      { key: "Gasolina95", label: "Gasolina 95" },
-      { key: "Gasolina98", label: "Gasolina 98" },
-      { key: "Diesel", label: "Diésel" },
-      { key: "DieselPremium", label: "Diésel Premium" },
-      { key: "DieselB", label: "Diésel B" },
-      { key: "GLP", label: "GLP" },
-      { key: "GPL", label: "GPL" },
-      { key: "Simples95", label: "Gasolina 95 Simple" },
-      { key: "Simples98", label: "Gasolina 98 Simple" },
-      { key: "Gasoleo", label: "Gasóleo" },
-      { key: "GasoleoEspecial", label: "Gasóleo Especial" },
-      { key: "Especial95", label: "Especial 95" },
-      { key: "Especial98", label: "Especial 98" },
-      { key: "Gazole", label: "Gasóleo" },
-      { key: "SP95", label: "SP95" },
-      { key: "E85", label: "E85" },
-      { key: "E10", label: "E10" },
-      { key: "GPLc", label: "GPL" },
-      { key: "SP98", label: "SP98" },
-    ];
-
-    let lowestPrice: FuelPrice = { price: Infinity, fuelType: "" };
-
-    fuelTypes.forEach(({ key, label }) => {
+  const getAllPrices = (station: Station): FuelPrice[] => {
+    return FUEL_TYPES.map(({ key, label }) => {
       const priceStr = station[key as keyof Station];
-      if (!priceStr || priceStr === "null") return;
+      if (!priceStr || priceStr === "null") return null;
 
       const price = parseFloat(String(priceStr));
-      if (!isNaN(price) && price < lowestPrice.price) {
-        lowestPrice = { price, fuelType: label };
-      }
-    });
-
-    return lowestPrice;
+      return !isNaN(price) ? { price, fuelType: label } : null;
+    })
+      .filter((price): price is FuelPrice => price !== null)
+      .sort((a, b) => a.price - b.price);
   };
 
   const filteredAndSortedStations = useMemo(() => {
@@ -171,8 +145,6 @@ export function useStations(localityId: number) {
       .sort((a, b) => {
         const aName = a.nombreEstacion || "";
         const bName = b.nombreEstacion || "";
-        const aPrice = getLowestPrice(a);
-        const bPrice = getLowestPrice(b);
 
         switch (sortOption) {
           case "name-asc":
@@ -180,9 +152,29 @@ export function useStations(localityId: number) {
           case "name-desc":
             return bName.localeCompare(aName);
           case "price-asc":
-            return aPrice.price - bPrice.price;
-          case "price-desc":
-            return bPrice.price - aPrice.price;
+          case "price-desc": {
+            const aPrices = getAllPrices(a).map((p) => p.price);
+            const bPrices = getAllPrices(b).map((p) => p.price);
+
+            if (aPrices.length === 0)
+              return sortOption === "price-asc" ? 1 : -1;
+            if (bPrices.length === 0)
+              return sortOption === "price-asc" ? -1 : 1;
+
+            const maxLength = Math.max(aPrices.length, bPrices.length);
+            for (let i = 0; i < maxLength; i++) {
+              const aPrice = aPrices[i] !== undefined ? aPrices[i] : Infinity;
+              const bPrice = bPrices[i] !== undefined ? bPrices[i] : Infinity;
+
+              if (aPrice !== bPrice) {
+                return sortOption === "price-asc"
+                  ? aPrice - bPrice
+                  : bPrice - aPrice;
+              }
+            }
+
+            return aName.localeCompare(bName);
+          }
           default:
             return 0;
         }

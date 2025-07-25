@@ -95,9 +95,7 @@ export default function PanelFilter({
                         }
                         className="h-4 w-4 rounded border-border text-primary focus:ring-primary/50"
                       />
-                      <span className="text-sm text-foreground">
-                        {label}
-                      </span>
+                      <span className="text-sm text-foreground">{label}</span>
                     </div>
                   </label>
                 ))}

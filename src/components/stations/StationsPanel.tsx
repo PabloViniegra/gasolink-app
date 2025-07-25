@@ -13,21 +13,22 @@ type Props = {
   refetch?: () => Promise<any>;
 };
 
-export default function StationsPanel({ 
-  stations, 
-  allStations, 
-  currentPage, 
-  totalPages, 
-  setCurrentPage, 
-  isLoading, 
-  error, 
-  refetch 
+export default function StationsPanel({
+  stations,
+  allStations,
+  currentPage,
+  totalPages,
+  setCurrentPage,
+  isLoading,
+  error,
+  refetch,
 }: Props) {
-
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <p className="text-gray-400 text-sm font-sans-serif font-medium tracking-tight">Cargando estaciones...</p>
+        <p className="text-gray-400 text-sm font-sans-serif font-medium tracking-tight">
+          Cargando estaciones...
+        </p>
       </div>
     );
   }
@@ -36,7 +37,7 @@ export default function StationsPanel({
     return (
       <div className="flex flex-col items-center justify-center h-64 space-y-4">
         <p className="text-red-400 text-sm font-sans-serif font-medium tracking-tight text-center">
-          Error al cargar las estaciones: {error.message || 'Error desconocido'}
+          Error al cargar las estaciones: {error.message || "Error desconocido"}
         </p>
         {refetch && (
           <button
@@ -53,7 +54,9 @@ export default function StationsPanel({
   if (allStations.length === 0) {
     return (
       <div className="flex justify-center items-center h-64">
-        <p className="text-gray-400 text-sm font-sans-serif font-medium tracking-tight">No hay estaciones disponibles. Selecciona un municipio.</p>
+        <p className="text-gray-400 text-sm font-sans-serif font-medium tracking-tight">
+          No hay estaciones disponibles. Selecciona un municipio.
+        </p>
       </div>
     );
   }
@@ -65,7 +68,7 @@ export default function StationsPanel({
           <StationCard key={station.idEstacion} station={station} />
         ))}
       </div>
-      
+
       {totalPages > 1 && (
         <div className="mt-6 pb-6">
           <div className="text-center text-sm text-gray-400 mb-2">

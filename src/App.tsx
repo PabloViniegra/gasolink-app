@@ -50,10 +50,7 @@ function App() {
               onClearFilters={onClearFilters}
               activeFilterCount={activeFilterCount}
             />
-            <PanelOrder
-              sortOption={sortOption}
-              onSortChange={setSortOption}
-            />
+            <PanelOrder sortOption={sortOption} onSortChange={setSortOption} />
           </div>
         </div>
         <div className="mt-6">
