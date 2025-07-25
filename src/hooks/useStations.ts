@@ -51,7 +51,86 @@ export function useStations(localityId: number) {
     recentlyUpdated: false,
   });
 
+  // Fetch stations data
+  const stationsQuery = useQuery({
+    queryKey: ["stations", localityId],
+    queryFn: () => {
+      if (!localityId) return Promise.resolve([]);
+      return getStations(localityId);
+    },
+    enabled: !!localityId,
+  });
+
+  // Calculate min and max prices from the data
+  const priceRange = useMemo(() => {
+    if (!stationsQuery.data || stationsQuery.data.length === 0) {
+      return { min: 1, max: 3 }; // Default range if no data
+    }
+
+    let min = Infinity;
+    let max = -Infinity;
+
+    stationsQuery.data.forEach((station) => {
+      FUEL_TYPES.forEach(({ key }) => {
+        const priceStr = station[key as keyof Station];
+        if (!priceStr || priceStr === "null") return;
+
+        const price = parseFloat(String(priceStr));
+        if (!isNaN(price)) {
+          min = Math.min(min, price);
+          max = Math.max(max, price);
+        }
+      });
+    });
+
+    min = Math.floor(min * 10) / 10;
+    max = Math.ceil(max * 10) / 10;
+
+    if (min === max) {
+      min = Math.max(0, min - 0.5);
+      max += 0.5;
+    }
+
+    return { min, max };
+  }, [stationsQuery.data]);
+
   const { setStations, currentPage, setCurrentPage } = useStationStore();
+
+  const updateFilters = (updates: Partial<FilterOptions>) => {
+    setCurrentPage(1);
+    setFilters((prev) => ({
+      ...prev,
+      ...updates,
+    }));
+  };
+
+  const handleFuelFilterChange = (fuelType: string, isChecked: boolean) => {
+    updateFilters({
+      fuelTypes: isChecked
+        ? [...filters.fuelTypes, fuelType as FuelType]
+        : filters.fuelTypes.filter((f) => f !== fuelType),
+    });
+  };
+
+  const handlePriceRangeChange = (min: number | null, max: number | null) => {
+    updateFilters({
+      priceRange: { min, max },
+    });
+  };
+
+  const handleToggleRecentlyUpdated = (enabled: boolean) => {
+    updateFilters({
+      recentlyUpdated: enabled,
+    });
+  };
+
+  const clearFilters = () => {
+    updateFilters({
+      fuelTypes: [],
+      priceRange: { min: null, max: null },
+      recentlyUpdated: false,
+    });
+  };
 
   const availableFuelTypes = useMemo(() => {
     return [...new Set(FUEL_TYPES.map((f) => f.label))].sort();
@@ -63,15 +142,6 @@ export function useStations(localityId: number) {
     const now = new Date();
     return (now.getTime() - updatedAt.getTime()) / (1000 * 60 * 60);
   };
-
-  const stationsQuery = useQuery({
-    queryKey: ["stations", localityId],
-    queryFn: () => {
-      if (!localityId) return Promise.resolve([]);
-      return getStations(localityId);
-    },
-    enabled: !!localityId,
-  });
 
   const totalPages = useMemo(() => {
     if (!stationsQuery.data) return 0;
@@ -100,37 +170,66 @@ export function useStations(localityId: number) {
 
     return [...stationsQuery.data]
       .filter((station) => {
+        // Apply fuel type filter
         if (filters.fuelTypes.length > 0) {
           const hasSelectedFuel = filters.fuelTypes.some((fuelKey) => {
             const fuelType = FUEL_TYPES.find((f) => f.key === fuelKey);
             if (!fuelType) return false;
-            const price = station[fuelKey as keyof Station];
-            return price && price !== "null";
+            const priceStr = station[fuelKey as keyof Station];
+            if (!priceStr || priceStr === "null") return false;
+
+            // Apply price range filter for each selected fuel type
+            const price = parseFloat(String(priceStr));
+            if (isNaN(price)) return false;
+
+            if (
+              filters.priceRange.min !== null &&
+              price < filters.priceRange.min
+            ) {
+              return false;
+            }
+            if (
+              filters.priceRange.max !== null &&
+              price > filters.priceRange.max
+            ) {
+              return false;
+            }
+
+            return true;
           });
+
           if (!hasSelectedFuel) return false;
         }
 
+        // If no fuel types selected, apply price range to all fuel types
         if (
-          filters.priceRange.min !== null ||
-          filters.priceRange.max !== null
+          filters.fuelTypes.length === 0 &&
+          (filters.priceRange.min !== null || filters.priceRange.max !== null)
         ) {
-          const prices = FUEL_TYPES.map((type) =>
-            parseFloat(String(station[type.key as keyof Station] || "0"))
-          ).filter((price) => !isNaN(price) && price > 0);
+          const hasMatchingPrice = FUEL_TYPES.some((type) => {
+            const priceStr = station[type.key as keyof Station];
+            if (!priceStr || priceStr === "null") return false;
 
-          if (prices.length === 0) return false;
+            const price = parseFloat(String(priceStr));
+            if (isNaN(price)) return false;
 
-          const minPrice = Math.min(...prices);
-          if (
-            filters.priceRange.min !== null &&
-            minPrice < filters.priceRange.min
-          )
-            return false;
-          if (
-            filters.priceRange.max !== null &&
-            minPrice > filters.priceRange.max
-          )
-            return false;
+            if (
+              filters.priceRange.min !== null &&
+              price < filters.priceRange.min
+            ) {
+              return false;
+            }
+            if (
+              filters.priceRange.max !== null &&
+              price > filters.priceRange.max
+            ) {
+              return false;
+            }
+
+            return true;
+          });
+
+          if (!hasMatchingPrice) return false;
         }
 
         if (filters.recentlyUpdated) {
@@ -179,7 +278,7 @@ export function useStations(localityId: number) {
             return 0;
         }
       });
-  }, [stationsQuery.data, sortOption]);
+  }, [stationsQuery.data, sortOption, filters]);
 
   const paginatedStations = useMemo(() => {
     const startIndex = (currentPage - 1) * STATIONS_PER_PAGE;
@@ -199,64 +298,28 @@ export function useStations(localityId: number) {
     }
   }, [stationsQuery.data, paginatedStations, setStations]);
 
-  useEffect(() => {
-    if (stationsQuery.error) {
-      console.error("Error fetching stations:", stationsQuery.error);
-    }
-  }, [stationsQuery.error]);
-
-  const updateFilters = (updates: Partial<FilterOptions>) => {
-    setCurrentPage(1);
-    setFilters((prev) => ({
-      ...prev,
-      ...updates,
-    }));
-  };
-
-  const handleFuelFilterChange = (fuelType: string, isChecked: boolean) => {
-    updateFilters({
-      fuelTypes: isChecked
-        ? [...filters.fuelTypes, fuelType as FuelType]
-        : filters.fuelTypes.filter((f) => f !== fuelType),
-    });
-  };
-
-  const handlePriceRangeChange = (min: number | null, max: number | null) => {
-    updateFilters({
-      priceRange: { min, max },
-    });
-  };
-
-  const toggleRecentlyUpdated = (enabled: boolean) => {
-    updateFilters({
-      recentlyUpdated: enabled,
-    });
-  };
-
-  const clearFilters = () => {
-    updateFilters({
-      fuelTypes: [],
-      priceRange: { min: null, max: null },
-      recentlyUpdated: false,
-    });
-  };
-
   return {
     stations: paginatedStations,
     allStations: stationsQuery.data || [],
+    isLoading: stationsQuery.isLoading,
+    error: stationsQuery.error,
     totalPages,
     currentPage,
     setCurrentPage,
     sortOption,
     setSortOption,
-    isLoading: stationsQuery.isLoading,
-    error: stationsQuery.error,
-    refetch: stationsQuery.refetch,
+    filters,
+    priceRange, // Export the calculated price range
+    updateFilters,
+    handleFuelFilterChange,
+    handlePriceRangeChange,
+    handleToggleRecentlyUpdated,
+    clearFilters,
     availableFuelTypes,
     selectedFuels: filters.fuelTypes,
     onFuelFilterChange: handleFuelFilterChange,
     onPriceRangeChange: handlePriceRangeChange,
-    onToggleRecentlyUpdated: toggleRecentlyUpdated,
+    onToggleRecentlyUpdated: handleToggleRecentlyUpdated,
     onClearFilters: clearFilters,
     activeFilterCount:
       filters.fuelTypes.length +

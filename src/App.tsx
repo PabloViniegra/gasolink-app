@@ -23,12 +23,12 @@ function App() {
     error,
     availableFuelTypes,
     selectedFuels,
+    priceRange,
     onFuelFilterChange,
     onPriceRangeChange,
     onToggleRecentlyUpdated,
     onClearFilters,
     activeFilterCount,
-    refetch,
   } = useStations(selectedLocalityId || 0);
 
   return (
@@ -44,6 +44,7 @@ function App() {
             <PanelFilter
               fuelTypes={availableFuelTypes}
               selectedFuels={selectedFuels}
+              priceRange={priceRange}
               onFuelFilterChange={onFuelFilterChange}
               onPriceRangeChange={onPriceRangeChange}
               onToggleRecentlyUpdated={onToggleRecentlyUpdated}
@@ -62,7 +63,6 @@ function App() {
             setCurrentPage={setCurrentPage}
             isLoading={isLoading}
             error={error}
-            refetch={refetch}
           />
         </div>
       </div>

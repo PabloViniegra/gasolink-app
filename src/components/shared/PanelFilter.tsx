@@ -1,12 +1,13 @@
 import { Popover, PopoverTrigger, PopoverContent, Slider } from "@heroui/react";
 import { Funnel, Clock, Euro } from "lucide-react";
 import { Button, Checkbox } from "@heroui/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FUEL_TYPES } from "../../hooks/useStations";
 
 interface PanelFilterProps {
   fuelTypes: string[];
   selectedFuels: string[];
+  priceRange: { min: number; max: number };
   onFuelFilterChange: (fuelType: string, isChecked: boolean) => void;
   onPriceRangeChange: (min: number | null, max: number | null) => void;
   onToggleRecentlyUpdated: (enabled: boolean) => void;
@@ -17,6 +18,7 @@ interface PanelFilterProps {
 
 export default function PanelFilter({
   selectedFuels,
+  priceRange,
   onFuelFilterChange,
   onPriceRangeChange,
   onToggleRecentlyUpdated,
@@ -25,17 +27,27 @@ export default function PanelFilter({
   className,
 }: PanelFilterProps) {
   const [recentlyUpdated, setRecentlyUpdated] = useState(false);
-  const [priceRange, setPriceRange] = useState<[number, number]>([1, 3]);
+  const [localPriceRange, setLocalPriceRange] = useState<[number, number]>([
+    priceRange.min,
+    priceRange.max,
+  ]);
+
+  useEffect(() => {
+    setLocalPriceRange([priceRange.min, priceRange.max]);
+  }, [priceRange]);
 
   const handlePriceRangeChange = (value: number | number[]) => {
     const [min, max] = Array.isArray(value) ? value : [value, value];
-    setPriceRange([min, max]);
-    onPriceRangeChange(min === 1 ? null : min, max === 3 ? null : max);
+    setLocalPriceRange([min, max]);
+    onPriceRangeChange(
+      min === priceRange.min ? null : min,
+      max === priceRange.max ? null : max
+    );
   };
 
   const handleClearAllFilters = () => {
     setRecentlyUpdated(false);
-    setPriceRange([1, 3]);
+    setLocalPriceRange([priceRange.min, priceRange.max]);
     onClearFilters();
   };
 
@@ -114,21 +126,21 @@ export default function PanelFilter({
                     Rango seleccionado:
                   </div>
                   <div className="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded">
-                    {priceRange[0] === 1
+                    {localPriceRange[0] <= priceRange.min
                       ? "Mín"
-                      : `€${priceRange[0].toFixed(2)}`}
+                      : `€${localPriceRange[0].toFixed(2)}`}
                     {" - "}
-                    {priceRange[1] === 3
+                    {localPriceRange[1] >= priceRange.max
                       ? "Máx"
-                      : `€${priceRange[1].toFixed(2)}`}
+                      : `€${localPriceRange[1].toFixed(2)}`}
                   </div>
                 </div>
                 <div className="px-2 py-3">
                   <Slider
-                    value={priceRange}
+                    value={localPriceRange}
                     onChange={handlePriceRangeChange}
-                    minValue={1}
-                    maxValue={3}
+                    minValue={priceRange.min}
+                    maxValue={priceRange.max}
                     step={0.05}
                     formatOptions={{ style: "currency", currency: "EUR" }}
                     label="Rango de precios"
@@ -136,8 +148,8 @@ export default function PanelFilter({
                   />
                 </div>
                 <div className="flex justify-between text-xs text-muted-foreground mt-1 px-1">
-                  <span>€1.00</span>
-                  <span>€3.00</span>
+                  <span>€{priceRange.min.toFixed(2)}</span>
+                  <span>€{priceRange.max.toFixed(2)}</span>
                 </div>
               </div>
             </div>

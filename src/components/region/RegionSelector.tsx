@@ -82,7 +82,9 @@ export default function RegionSelector({
                       }
                       size="md"
                       onSelectionChange={(provinceId) => {
-                        setSelectedProvinceId(provinceId ? Number(provinceId) : null);
+                        setSelectedProvinceId(
+                          provinceId ? Number(provinceId) : null
+                        );
                         setSelectedLocalityId(null);
                       }}
                     />
