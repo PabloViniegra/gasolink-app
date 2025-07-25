@@ -162,3 +162,9 @@ export interface Favorite {
   name: string;
   [key: string]: any;
 }
+
+export interface FAQItem {
+  question: string;
+  answer: string;
+  icon: React.ReactNode;
+}

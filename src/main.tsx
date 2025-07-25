@@ -8,12 +8,13 @@ import "./styles/globals.css";
 import { HeroUIProvider } from "@heroui/react";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import '@fontsource-variable/manrope';
-import '@fontsource-variable/sora';
-import '@fontsource-variable/chivo';
-import '@fontsource-variable/lexend';
-import '@fontsource/space-mono';
+import "@fontsource-variable/manrope";
+import "@fontsource-variable/sora";
+import "@fontsource-variable/chivo";
+import "@fontsource-variable/lexend";
+import "@fontsource/space-mono";
 import FavoritePage from "./pages/favoritePage";
+import HelpPage from "./pages/HelpPage";
 
 const queryClient = new QueryClient();
 
@@ -37,7 +38,11 @@ const router = createBrowserRouter([
   {
     path: "/favorites",
     element: <FavoritePage />,
-  }
+  },
+  {
+    path: "/help",
+    element: <HelpPage />,
+  },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
