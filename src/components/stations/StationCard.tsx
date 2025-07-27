@@ -57,8 +57,8 @@ export default function StationCard({ station }: StationCardProps) {
   ].filter((fuel) => fuel.price);
 
   return (
-    <Card className="bg-card backdrop-blur-sm border border-border/50 rounded-xl shadow-lg w-4/5 hover:border-primary/50 transition-colors duration-200 flex flex-col min-h-[500px] max-h-[600px]">
-      <CardHeader className="p-5 pb-3 flex-none">
+    <Card className="bg-card backdrop-blur-sm border border-border/50 rounded-xl shadow-lg w-full sm:w-11/12 md:w-4/5 hover:border-primary/50 transition-colors duration-200 flex flex-col min-h-[500px] max-h-[90vh] overflow-y-auto">
+      <CardHeader className="p-4 sm:p-5 pb-3 flex-none">
         <div className="flex flex-col space-y-4">
           <div className="flex justify-between items-start w-full">
             <div className="pr-3">
@@ -115,7 +115,7 @@ export default function StationCard({ station }: StationCardProps) {
         </div>
       </CardHeader>
 
-      <CardBody className="p-4 pt-0">
+      <CardBody className="p-3 sm:p-4 pt-0">
         <div className="border-t border-border/50 my-3"></div>
 
         <div className="flex items-center justify-between mb-3">
@@ -169,7 +169,7 @@ export default function StationCard({ station }: StationCardProps) {
           )}
         </div>
       </CardBody>
-      <CardFooter className="px-4 py-3">
+      <CardFooter className="px-3 sm:px-4 py-3">
         <div className="w-full">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-3 border-t border-border/30">
             {station.lastUpdate && (
@@ -183,7 +183,7 @@ export default function StationCard({ station }: StationCardProps) {
                 className="group relative flex items-center text-sm text-muted-foreground hover:text-primary transition-all duration-300 ease-out -ml-1.5 px-1.5 py-1 -my-1 rounded-md hover:bg-accent/30"
               >
                 <span className="relative inline-flex items-center">
-                  <span className="mr-1.5 text-xs font-sans font-medium tracking-wide">Ver detalles</span>
+                  <span className="mr-1.5 text-xs font-sans font-medium tracking-wide whitespace-nowrap">Ver detalles</span>
                   <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-accent/20 group-hover:bg-primary/10 transition-colors duration-300">
                     <CornerDownRight 
                       size={12} 

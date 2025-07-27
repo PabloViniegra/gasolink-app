@@ -47,26 +47,26 @@ const StationGridCards: React.FC<StationGridCardsProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 w-full">
       {stations.map((station) => (
         <Card
           key={station.idEstacion}
-          className="w-full max-w-full bg-card/50 hover:bg-card/70 transition-all duration-200 border border-border/30 hover:border-primary/30 shadow-sm hover:shadow-lg overflow-hidden flex flex-col break-words"
+          className="w-full h-full bg-card/50 hover:bg-card/70 transition-all duration-200 border border-border/30 hover:border-primary/30 shadow-sm hover:shadow-lg overflow-hidden flex flex-col break-words min-w-0 max-w-full"
         >
-          <CardBody className="pb-2 flex-1 flex flex-col">
-            <div className="flex justify-between items-start w-full gap-2">
+          <CardBody className="p-3 sm:p-4 flex-1 flex flex-col w-full overflow-x-hidden">
+            <div className="flex justify-between items-start w-full gap-2 overflow-hidden">
               <div>
-                <h3 className="font-semibold text-lg font-lexend text-foreground hover:text-primary transition-colors break-words overflow-hidden text-ellipsis">
+                <h3 className="font-semibold text-lg font-lexend text-foreground hover:text-primary transition-colors break-words overflow-hidden text-ellipsis whitespace-nowrap max-w-[180px] sm:max-w-[200px] md:max-w-full">
                   {station.nombreEstacion}
                 </h3>
-                <div className="flex items-center text-sm text-muted-foreground/80 mt-1 w-full">
+                <div className="flex items-center text-sm text-muted-foreground/80 mt-1 w-full overflow-hidden">
                   <MapPin size={14} className="mr-1 flex-shrink-0" />
-                  <span className="truncate max-w-[180px] md:max-w-[200px] lg:max-w-[220px]">
+                  <span className="truncate block max-w-full">
                     {station.direccion}
                   </span>
                 </div>
-                <div className="mt-3 flex items-center">
-                  <Chip variant="shadow" color="default">
+                <div className="mt-3 flex items-center w-full">
+                  <Chip variant="shadow" color="default" className="max-w-full">
                     <span className="flex items-center font-medium text-sm">
                       <Bookmark size={14} className="mr-1 flex-shrink-0" />
                       {station.distancia !== undefined &&
@@ -75,13 +75,13 @@ const StationGridCards: React.FC<StationGridCardsProps> = ({
                   </Chip>
                 </div>
               </div>
-              <div className="bg-primary/10 hover:bg-primary/20 text-primary text-sm font-medium px-3 py-1 rounded-full whitespace-nowrap transition-colors shrink-0">
+              <div className="bg-primary/10 hover:bg-primary/20 text-primary text-xs font-medium px-2 py-0.5 rounded-full whitespace-nowrap transition-colors shrink-0">
                 {getLowestPrice(station)} €/L
               </div>
             </div>
 
-            <div className="mt-4 pt-3 border-t border-border/30">
-              <div className="grid grid-cols-2 gap-2 text-sm">
+            <div className="mt-4 pt-3 border-t border-border/30 w-full overflow-hidden">
+              <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs sm:text-sm w-full min-w-0 [&>div]:truncate">
                 <div className="text-muted-foreground/80">Gasolina 95:</div>
                 <div className="font-medium text-right text-foreground/90">
                   {station.Gasolina95
@@ -105,7 +105,7 @@ const StationGridCards: React.FC<StationGridCardsProps> = ({
               </div>
             </div>
           </CardBody>
-          <CardFooter className="pt-0">
+          <CardFooter className="pt-0 px-3 sm:px-4 pb-2 sm:pb-3">
             <Button
               fullWidth
               variant="light"

@@ -129,7 +129,7 @@ export default function ListPage() {
   return (
     <MainLayout>
       <Header />
-      <div className="w-full max-w-6xl mx-auto px-4 py-6 mt-28">
+      <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 py-6 mt-28 overflow-x-hidden">
         <ListHeader
           SORT_OPTIONS={SORT_OPTIONS}
           stationCount={closeStations?.length || 0}
