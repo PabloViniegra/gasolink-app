@@ -57,16 +57,16 @@ export default function StationCard({ station }: StationCardProps) {
   ].filter((fuel) => fuel.price);
 
   return (
-    <Card className="bg-card backdrop-blur-sm border border-border/50 rounded-xl shadow-lg w-full sm:w-11/12 md:w-4/5 hover:border-primary/50 transition-colors duration-200 flex flex-col min-h-[500px] max-h-[90vh] overflow-y-auto">
-      <CardHeader className="p-4 sm:p-5 pb-3 flex-none">
-        <div className="flex flex-col space-y-4">
-          <div className="flex justify-between items-start w-full">
-            <div className="pr-3">
-              <h3 className="text-lg font-bold text-foreground font-display leading-tight">
+    <Card className="w-full h-full bg-card/50 hover:bg-card/70 transition-all duration-200 border border-border/30 hover:border-primary/30 shadow-sm hover:shadow-lg overflow-hidden flex flex-col break-words min-w-0 max-w-full">
+      <CardHeader className="p-4 sm:p-5 pb-2 flex-none">
+        <div className="flex flex-col space-y-3 w-full">
+          <div className="flex justify-between items-start w-full gap-3">
+            <div className="min-w-0 flex-1">
+              <h3 className="text-lg font-bold text-foreground font-display leading-snug break-words overflow-hidden text-ellipsis">
                 {station.nombreEstacion}
               </h3>
               {station.marca && (
-                <p className="text-sm text-primary font-sans mt-1">
+                <p className="text-sm text-primary font-sans mt-1 break-words">
                   {station.marca}
                 </p>
               )}
@@ -83,28 +83,30 @@ export default function StationCard({ station }: StationCardProps) {
               )}
             </div>
           </div>
-          <div className="pt-2 border-t border-gray-800/50">
-            <div className="flex items-start space-x-2">
+          
+          <div className="pt-2 border-t border-border/30 w-full">
+            <div className="flex items-start w-full">
               <MapPin
                 size={16}
-                className="flex-shrink-0 text-primary mt-0.5"
+                className="flex-shrink-0 text-primary mt-0.5 mr-2"
               />
-              <span className="text-sm text-foreground/80 font-sans leading-relaxed">
+              <span className="text-sm text-foreground/80 font-sans leading-relaxed break-words">
                 {station.direccion}
               </span>
             </div>
+            
             {station.horario && (
               <div className="mt-3 pt-2 border-t border-border/30">
-                <div className="flex items-start space-x-2">
+                <div className="flex items-start">
                   <Clock
                     size={14}
-                    className="flex-shrink-0 text-yellow-400 mt-0.5"
+                    className="flex-shrink-0 text-yellow-400 mt-0.5 mr-2"
                   />
-                  <div>
+                  <div className="min-w-0">
                     <p className="font-sans text-xs font-medium text-yellow-400 mb-1">
                       Horario
                     </p>
-                    <p className="text-xs text-muted-foreground font-sans leading-relaxed">
+                    <p className="text-xs text-muted-foreground font-sans leading-relaxed break-words">
                       {station.horario}
                     </p>
                   </div>
@@ -115,7 +117,7 @@ export default function StationCard({ station }: StationCardProps) {
         </div>
       </CardHeader>
 
-      <CardBody className="p-3 sm:p-4 pt-0">
+      <CardBody className="p-4 sm:p-5 pt-2 flex-1 flex flex-col w-full overflow-x-hidden">
         <div className="border-t border-border/50 my-3"></div>
 
         <div className="flex items-center justify-between mb-3">
@@ -128,7 +130,7 @@ export default function StationCard({ station }: StationCardProps) {
           </span>
         </div>
 
-        <div className="space-y-2.5">
+        <div className="space-y-2.5 w-full">
           {fuelTypes.length > 0 ? (
             fuelTypes.map((fuel) => (
               <div
@@ -169,7 +171,7 @@ export default function StationCard({ station }: StationCardProps) {
           )}
         </div>
       </CardBody>
-      <CardFooter className="px-3 sm:px-4 py-3">
+      <CardFooter className="pt-0 px-3 sm:px-4 pb-2 sm:pb-3">
         <div className="w-full">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-3 border-t border-border/30">
             {station.lastUpdate && (
